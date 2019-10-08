@@ -28,6 +28,7 @@ import { ERROR_FACTORY, ErrorCode, isServerError } from '../util/errors';
 import { sleep } from '../util/sleep';
 import { generateFid, INVALID_FID } from './generate-fid';
 import { remove, set, update } from './idb-manager';
+import { fidChanged } from './fid-changed';
 
 export interface InstallationEntryWithRegistrationPromise {
   installationEntry: InstallationEntry;
@@ -132,7 +133,13 @@ async function registerInstallation(
       appConfig,
       installationEntry
     );
-    return set(appConfig, registeredInstallationEntry);
+    await set(appConfig, registeredInstallationEntry);
+
+    if (registeredInstallationEntry.fid !== installationEntry.fid) {
+      // If the server returned a different FID, call the FID change callbacks.
+      fidChanged(appConfig, registeredInstallationEntry.fid);
+    }
+    return registeredInstallationEntry;
   } catch (e) {
     if (isServerError(e) && e.serverCode === 409) {
       // Server returned a "FID can not be used" error.

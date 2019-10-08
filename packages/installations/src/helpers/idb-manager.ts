@@ -18,6 +18,7 @@
 import { DB, openDb } from 'idb';
 import { AppConfig } from '../interfaces/app-config';
 import { InstallationEntry } from '../interfaces/installation-entry';
+import { getKey } from '../util/get-key';
 
 const DATABASE_NAME = 'firebase-installations-database';
 const DATABASE_VERSION = 1;
@@ -107,8 +108,4 @@ export async function clear(): Promise<void> {
   const tx = db.transaction(OBJECT_STORE_NAME, 'readwrite');
   await tx.objectStore(OBJECT_STORE_NAME).clear();
   await tx.complete;
-}
-
-function getKey(appConfig: AppConfig): string {
-  return `${appConfig.appName}!${appConfig.appId}`;
 }

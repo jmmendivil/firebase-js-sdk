@@ -22,7 +22,14 @@ import {
 } from '@firebase/app-types/private';
 import { FirebaseInstallations } from '@firebase/installations-types';
 
-import { deleteInstallation, getId, getToken } from './functions';
+import {
+  deleteInstallation,
+  getId,
+  getToken,
+  IdChangeCallbackFn,
+  IdChangeUnsubscribeFn,
+  onIdChange
+} from './functions';
 import { extractAppConfig } from './helpers/extract-app-config';
 
 export function registerInstallations(instance: _FirebaseNamespace): void {
@@ -32,12 +39,15 @@ export function registerInstallations(instance: _FirebaseNamespace): void {
     // Throws if app isn't configured properly.
     extractAppConfig(app);
 
-    return {
+    const installations: FirebaseInstallations = {
       app,
       getId: () => getId(app),
       getToken: (forceRefresh?: boolean) => getToken(app, forceRefresh),
-      delete: () => deleteInstallation(app)
+      delete: () => deleteInstallation(app),
+      onIdChange: (callback: IdChangeCallbackFn): IdChangeUnsubscribeFn =>
+        onIdChange(app, callback)
     };
+    return installations;
   };
 
   instance.INTERNAL.registerService(installationsName, factoryMethod);

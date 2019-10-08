@@ -18,6 +18,8 @@
 import { FirebaseApp } from '@firebase/app-types';
 
 export interface FirebaseInstallations {
+  readonly app: FirebaseApp;
+
   /**
    * Creates a Firebase Installation if there isn't one for the app and
    * returns the Installation ID.
@@ -37,4 +39,13 @@ export interface FirebaseInstallations {
    * Deletes the Firebase Installation and all associated data.
    */
   delete(): Promise<void>;
+
+  /**
+   * Sets a new callback that will get called when Installlation ID changes.
+   * Returns an unsubscribe function that will remove the callback when called.
+   */
+  onIdChange(callback: IdChangeCallbackFn): IdChangeUnsubscribeFn;
 }
+
+export type IdChangeCallbackFn = (installationId: string) => void;
+export type IdChangeUnsubscribeFn = () => void;

@@ -17,8 +17,8 @@
 
 import { FirebaseApp, FirebaseOptions } from '@firebase/app-types';
 
-export function makeFakeApp(options: FirebaseOptions = {}): FirebaseApp {
-  options = {
+export function makeFakeApp(customOptions: FirebaseOptions = {}): FirebaseApp {
+  const options = {
     apiKey: 'apiKey',
     projectId: 'projectId',
     authDomain: 'authDomain',
@@ -26,9 +26,9 @@ export function makeFakeApp(options: FirebaseOptions = {}): FirebaseApp {
     databaseURL: 'databaseUrl',
     storageBucket: 'storageBucket',
     appId: '1:777777777777:web:d93b5ca1475efe57',
-    ...options
+    ...customOptions
   };
-  return {
+  const app: FirebaseApp = {
     name: 'appName',
     options,
     automaticDataCollectionEnabled: true,
@@ -36,10 +36,13 @@ export function makeFakeApp(options: FirebaseOptions = {}): FirebaseApp {
     messaging: null as any,
     installations() {
       return {
+        app,
         getId: () => Promise.resolve('FID'),
         getToken: () => Promise.resolve('authToken'),
-        delete: () => Promise.resolve()
+        delete: () => Promise.resolve(),
+        onIdChange: () => () => {}
       };
     }
   };
+  return app;
 }
